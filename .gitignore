@@ -15,3 +15,6 @@ out/
 
 # Ignore packages folder if using NuGet
 packages/
+
+
+Images/
