@@ -2,6 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using myshop.DataAccess.Data;
 using myshop.DataAccess.Implementation;
 using myshop.Entities.Repositories;
+using Microsoft.AspNetCore.Identity;
+using myshop.Utilities;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +13,11 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("Connection")));
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddDefaultTokenProviders().AddDefaultUI()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
+builder.Services.AddSingleton<IEmailSender, EmailSender>();
 
 var app = builder.Build();
 
@@ -28,6 +35,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.MapRazorPages(); // This line is added to support Razor Pages for Identity
 
 app.MapControllerRoute(
     name: "default",
