@@ -134,15 +134,28 @@ namespace myshop.Web.Areas.Identity.Pages.Account
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-                user.FullName = Input.FullName;
-                user.Address = Input.Address;
-                user.City = Input.City;
+                user.FullName = Input.FullName; //
+                user.Address = Input.Address; //
+                user.City = Input.City; //
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
-                    await _userManager.AddToRoleAsync(user, SD.CustomerRole); // Add this line to assign the role named 'Customer' to the user
+
+                    string role = HttpContext.Request.Form["RadioRole"].ToString();
+                    if (String.IsNullOrEmpty(role)) 
+                    {
+                        await _userManager.AddToRoleAsync(user, SD.CustomerRole); // Add this line to assign the role named 'Customer' to the user
+
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        return LocalRedirect(returnUrl);
+                    } else
+                    {
+                        await _userManager.AddToRoleAsync(user, role);
+                    }
+                    return RedirectToAction("Index", "Users", new { area = "Admin" });
+
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -161,8 +174,7 @@ namespace myshop.Web.Areas.Identity.Pages.Account
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
+                        
                     }
                 }
                 foreach (var error in result.Errors)

@@ -14,7 +14,9 @@ builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("Connection")));
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddDefaultTokenProviders().AddDefaultUI()
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(
+    options => options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5)
+    ).AddDefaultTokenProviders().AddDefaultUI()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
