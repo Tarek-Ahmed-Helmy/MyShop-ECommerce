@@ -1,10 +1,5 @@
 ﻿using myshop.DataAccess.Data;
 using myshop.Entities.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace myshop.DataAccess.Implementation;
 
@@ -15,6 +10,9 @@ public class UnitOfWork : IUnitOfWork
 
     public IProductRepository Product { get; private set; }
     public IShoppingCartRepository ShoppingCart { get; private set; }
+    public IOrderRepository Order { get; private set; }
+    public IOrderDetailRepository OrderDetail { get; private set; }
+    public IApplicationUserRepository ApplicationUser { get; private set; }
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -22,6 +20,9 @@ public class UnitOfWork : IUnitOfWork
         Category = new CategoryRepository(context);
         Product = new ProductRepository(context);
         ShoppingCart = new ShoppingCartRepository(context);
+        Order = new OrderRepository(context);
+        OrderDetail = new OrderDetailRepository(context);
+        ApplicationUser = new ApplicationUserRepository(context);
     }
 
     public int Complete()
