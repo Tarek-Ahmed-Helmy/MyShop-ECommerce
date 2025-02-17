@@ -26,6 +26,7 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
             if(paymentStatus != null)
             {
                 order.PaymentStatus = paymentStatus;
+                order.PaymentDate = DateTime.Now;
             }
         }
     }
