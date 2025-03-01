@@ -7,7 +7,6 @@ public class UnitOfWork : IUnitOfWork
 {
     private readonly ApplicationDbContext _context;
     public ICategoryRepository Category { get; private set; }
-
     public IProductRepository Product { get; private set; }
     public IShoppingCartRepository ShoppingCart { get; private set; }
     public IOrderRepository Order { get; private set; }

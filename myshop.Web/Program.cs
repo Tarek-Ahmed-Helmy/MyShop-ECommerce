@@ -17,6 +17,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 
 builder.Services.Configure<StripeData>(builder.Configuration.GetSection("Stripe"));
 
+// it must be ApplicationUser but after edit
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(
     options => options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5)
     ).AddDefaultTokenProviders().AddDefaultUI()

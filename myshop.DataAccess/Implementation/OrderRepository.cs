@@ -17,13 +17,13 @@ public class OrderRepository : GenericRepository<Order>, IOrderRepository
         _context.Orders.Update(order);
     }
 
-    public void UpdateOrderStatus(int orderId, string orderStatus, string paymentStatus)
+    public void UpdateOrderStatus(int orderId, string? orderStatus, string? paymentStatus)
     {
-        Order order = _context.Orders.Find(orderId);
+        var order = _context.Orders.Find(orderId);
         if (order != null)
         {
             order.OrderStatus = orderStatus;
-            if(paymentStatus != null)
+            if (paymentStatus != null)
             {
                 order.PaymentStatus = paymentStatus;
                 order.PaymentDate = DateTime.Now;

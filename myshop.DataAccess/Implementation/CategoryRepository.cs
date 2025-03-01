@@ -19,7 +19,6 @@ public class CategoryRepository : GenericRepository<Category>, ICategoryReposito
         {
             CategoryInDb.CategoryName = category.CategoryName;
             CategoryInDb.CategoryDescription = category.CategoryDescription;
-            //CategoryInDb.UpdatedAt = DateTime.Now;
         }
     }
 }

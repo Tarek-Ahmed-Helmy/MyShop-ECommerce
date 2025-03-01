@@ -3,14 +3,12 @@
 	ViewBag.CardTitle = "View Products";
 }
 
-<div>
-	<a asp-action="Create" class="btn btn-primary">Create</a>
-</div>
 
-<br />
+
+
 
 <table id="productTbl" class="table table-hover" width="100%">
-	<thead class="text-bold">
+	<thead class="fw-bold">
 		<tr>
 			<td>Name</td>
 			<td>Description</td>
@@ -20,6 +18,10 @@
 		</tr>
 	</thead> 
 </table>
+<hr />
+<div>
+	<a asp-action="Create" class="btn btn-primary">Create New Product</a>
+</div>
 
 @section Scripts {
 	<script src="~/js/product.js"></script>

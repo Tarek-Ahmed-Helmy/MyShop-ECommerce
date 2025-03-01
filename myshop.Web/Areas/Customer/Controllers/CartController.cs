@@ -35,7 +35,7 @@ public class CartController : Controller
 
         foreach (var item in ShoppingCartVM.CartList)
         {
-            ShoppingCartVM.OrderTotal += (item.Product.Price * item.Quantity);
+            ShoppingCartVM.Order.TotalAmount += (item.Product.Price * item.Quantity);
         }
         return View(ShoppingCartVM);
     }
@@ -54,8 +54,11 @@ public class CartController : Controller
         if (cart.Quantity == 1)
         {
             _unitOfWork.ShoppingCart.Remove(cart);
-            _unitOfWork.Complete();
-            return RedirectToAction(nameof(Index), "Home");
+            var count = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserID == cart.ApplicationUserID).ToList().Count - 1;
+            HttpContext.Session.SetInt32(SD.SessionKey, count);
+
+            //_unitOfWork.Complete();
+            //return RedirectToAction(nameof(Index), "Home");
         }
         else
         {
@@ -70,6 +73,8 @@ public class CartController : Controller
         var cart = _unitOfWork.ShoppingCart.GetFirstOrDefault(c => c.Id == cartId);
         _unitOfWork.ShoppingCart.Remove(cart);
         _unitOfWork.Complete();
+        var count = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserID == cart.ApplicationUserID).ToList().Count - 1;
+        HttpContext.Session.SetInt32(SD.SessionKey, count);
         return RedirectToAction(nameof(Index));
     }
 
@@ -93,7 +98,7 @@ public class CartController : Controller
 
         foreach (var item in ShoppingCartVM.CartList)
         {
-            ShoppingCartVM.OrderTotal += (item.Product.Price * item.Quantity);
+            ShoppingCartVM.Order.TotalAmount += (item.Product.Price * item.Quantity);
         }
         return View(ShoppingCartVM);
     }
@@ -115,7 +120,7 @@ public class CartController : Controller
 
         foreach (var item in shoppingCartVM.CartList)
         {
-            shoppingCartVM.OrderTotal += (item.Product.Price * item.Quantity);
+            shoppingCartVM.Order.TotalAmount += (item.Product.Price * item.Quantity);
         }
 
         _unitOfWork.Order.Add(shoppingCartVM.Order);

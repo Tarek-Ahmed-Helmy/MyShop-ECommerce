@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using myshop.DataAccess.Data;
 using myshop.Entities.Models;
 using myshop.Entities.Repositories;
 using myshop.Entities.ViewModels;
+using myshop.Utilities;
 
 namespace myshop.Web.Areas.Admin.Controllers;
 
 [Area("Admin")]
+[Authorize(Roles = SD.AdminRole)]
 public class ProductController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -22,6 +24,7 @@ public class ProductController : Controller
     {
         //var products = _unitOfWork.Product.GetAll();
         //return View(products);
+        // It will be viewed by datatables using jquery
         return View();
     }
 
@@ -72,7 +75,7 @@ public class ProductController : Controller
             TempData["CreateMsg"] = "Item has created successfully";
             return RedirectToAction(nameof(Index));
         }
-        return View(productVM.Product);
+        return View(productVM); //why i use productVM.product here?
     }
 
     [HttpGet]
@@ -80,7 +83,7 @@ public class ProductController : Controller
     {
         if (id == null | id == 0)
         {
-            NotFound();
+            return NotFound();
         }
 
         ProductVM productVM = new ProductVM()
@@ -129,7 +132,7 @@ public class ProductController : Controller
             TempData["UpdateMsg"] = "Item has updated successfully";
             return RedirectToAction(nameof(Index));
         }
-        return View(productVM.Product);
+        return View(productVM);
     }
 
     [HttpDelete]
@@ -149,7 +152,5 @@ public class ProductController : Controller
         }
         _unitOfWork.Complete();
         return Json(new { success = true, message = "Item has deleted successfully" });
-        //TempData["DeleteMsg"] = "Item has deleted successfully";
-        //return RedirectToAction(nameof(Index));
     }
 }

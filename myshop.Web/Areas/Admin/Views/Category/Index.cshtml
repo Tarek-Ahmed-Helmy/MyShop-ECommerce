@@ -5,22 +5,20 @@
 	ViewBag.CardTitle = "View Categories";
 }
 
-<div>
-	<a asp-action="Create" class="btn btn-primary">Create</a>
-</div>
-
-<table class="d-lg-table table-hover" width="100%">
-	<tr>
-		<td>Name</td>
-		<td>Desc</td>
-		<td>Date Created</td>
-		<td>Actions</td>
-	</tr>
+<table class="table table-hover" width="100%">
+	<thead class="fw-bold">
+		<tr>
+			<td>Name</td>
+			<td>Description</td>
+			<td>Date Created</td>
+			<td>Actions</td>
+		</tr>
+	</thead>
 	@foreach (var item in Model)
 	{
 		<tr>
 			<td>@item.CategoryName</td>
-			<td>@item.CategoryDescription</td>
+			<td>@Html.Raw(item.CategoryDescription)</td>
 			<td>@item.CreatedAt</td>
 			<td>
 				<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-success">Edit</a>
@@ -29,3 +27,7 @@
 		</tr>
 	}
 </table>
+<hr />
+<div>
+	<a asp-action="Create" class="btn btn-primary">Create New Category</a>
+</div>

@@ -1,6 +1,4 @@
-﻿
-
-namespace myshop.Utilities;
+﻿namespace myshop.Utilities;
 
 public class StripeData
 {

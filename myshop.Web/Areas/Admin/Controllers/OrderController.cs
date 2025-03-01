@@ -29,8 +29,7 @@ public class OrderController : Controller
     [HttpGet]
     public IActionResult GetData()
     {
-        IEnumerable<Order> orders;
-        orders = _unitOfWork.Order.GetAll(includeEntity: "ApplicationUser");
+        var orders = _unitOfWork.Order.GetAll(includeEntity: "ApplicationUser");
         return Json(new { data = orders });
     }
 
@@ -65,7 +64,7 @@ public class OrderController : Controller
         _unitOfWork.Order.Update(order);
         _unitOfWork.Complete();
         TempData["UpdateMsg"] = "Order details updated successfully";
-        return RedirectToAction("Details", new { id = order.Id });
+        return RedirectToAction("Details", "Order", new { id = order.Id });
     }
 
     [HttpPost]
@@ -75,8 +74,8 @@ public class OrderController : Controller
         _unitOfWork.Order.UpdateOrderStatus(OrderVM.Order.Id, SD.processing, null);
         _unitOfWork.Complete();
 
-        TempData["UpdateMsg"] = "Order status updated successfully";
-        return RedirectToAction("Details", new { id = OrderVM.Order.Id });
+        TempData["UpdateMsg"] = "Order status has updated successfully";
+        return RedirectToAction("Details", "Order", new { id = OrderVM.Order.Id });
     }
 
     [HttpPost]
@@ -93,7 +92,7 @@ public class OrderController : Controller
         _unitOfWork.Complete();
 
         TempData["UpdateMsg"] = "Order has shipped successfully";
-        return RedirectToAction("Details", new { id = OrderVM.Order.Id });
+        return RedirectToAction("Details", "Order", new { id = OrderVM.Order.Id });
     }
 
     [HttpPost]
@@ -116,8 +115,9 @@ public class OrderController : Controller
         }
         else
         {
-            _unitOfWork.Order.UpdateOrderStatus(order.Id, SD.Cancelled, null);
+            _unitOfWork.Order.UpdateOrderStatus(order.Id, SD.Cancelled, SD.Cancelled);
         }
+        _unitOfWork.Complete();
 
         TempData["UpdateMsg"] = "Order has canceld successfully";
         return RedirectToAction("Details", new { id = OrderVM.Order.Id });

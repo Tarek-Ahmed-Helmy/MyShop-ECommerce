@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using myshop.DataAccess.Data;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using myshop.Entities.Models;
 using myshop.Entities.Repositories;
+using myshop.Utilities;
 
 namespace myshop.Web.Areas.Admin.Controllers;
 
 [Area("Admin")]
+[Authorize(Roles = SD.AdminRole)]
 public class CategoryController : Controller
 {
     private IUnitOfWork _unitOfWork;
@@ -45,7 +47,7 @@ public class CategoryController : Controller
     {
         if (id == null | id == 0)
         {
-            NotFound();
+            return NotFound();
         }
         var category = _unitOfWork.Category.GetFirstOrDefault(c => c.Id == id);
         return View(category);
@@ -70,7 +72,7 @@ public class CategoryController : Controller
     {
         if (id == null | id == 0)
         {
-            NotFound();
+            return NotFound();
         }
         var category = _unitOfWork.Category.GetFirstOrDefault(c => c.Id == id);
         return View(category);
@@ -83,7 +85,7 @@ public class CategoryController : Controller
         var category = _unitOfWork.Category.GetFirstOrDefault(c => c.Id == id);
         if (category == null)
         {
-            NotFound();
+            return NotFound();
         }
         _unitOfWork.Category.Remove(category);
         _unitOfWork.Complete();

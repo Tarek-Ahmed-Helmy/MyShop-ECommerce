@@ -22,7 +22,6 @@ public class ProductRepository : GenericRepository<Product>, IProductRepository
             ProductInDb.Price = product.Price;
             ProductInDb.ImgPath = product.ImgPath;
             ProductInDb.CategoryId = product.CategoryId;
-            //ProductInDb.UpdatedAt = DateTime.Now;
         }
     }
 }
