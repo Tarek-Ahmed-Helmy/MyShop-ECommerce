@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using myshop.Utilities;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Stripe;
+using myshop.Entities.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,12 +14,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
-    builder.Configuration.GetConnectionString("Connection")));
+    builder.Configuration.GetConnectionString("ApplicationDbContextConnection")));
 
 builder.Services.Configure<StripeData>(builder.Configuration.GetSection("Stripe"));
 
 // it must be ApplicationUser but after edit
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(
     options => options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5)
     ).AddDefaultTokenProviders().AddDefaultUI()
     .AddEntityFrameworkStores<ApplicationDbContext>();
