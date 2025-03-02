@@ -15,23 +15,12 @@ namespace myshop.Web.Areas.Identity.Pages.Account.Manage
 {
     public class IndexModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
-
-        //private readonly UserManager<ApplicationUser> _userManager;
-        //private readonly SignInManager<ApplicationUser> _signInManager;
-
-        //public IndexModel(
-        //    UserManager<ApplicationUser> userManager,
-        //    SignInManager<ApplicationUser> signInManager)
-        //{
-        //    _userManager = userManager;
-        //    _signInManager = signInManager;
-        //}
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
         public IndexModel(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -70,14 +59,9 @@ namespace myshop.Web.Areas.Identity.Pages.Account.Manage
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
-
-            public string FullName { get; set; }
-
-            public string Address { get; set; }
-            public string City { get; set; }
         }
 
-        private async Task LoadAsync(IdentityUser user)
+        private async Task LoadAsync(ApplicationUser user)
         {
             var userName = await _userManager.GetUserNameAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
@@ -86,10 +70,7 @@ namespace myshop.Web.Areas.Identity.Pages.Account.Manage
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber,
-                //Address = user.Address,
-                //City = user.City,
-                //FullName = user.FullName
+                PhoneNumber = phoneNumber
             };
         }
 
@@ -120,28 +101,6 @@ namespace myshop.Web.Areas.Identity.Pages.Account.Manage
             }
 
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            //var address = user.Address;
-            //var city = user.City;
-            //var fullName = user.FullName;
-
-            //if (Input.FullName != fullName)
-            //{
-            //    user.FullName = Input.FullName;
-            //    await _userManager.UpdateAsync(user);
-            //}
-
-            //if (Input.Address != address)
-            //{
-            //    user.Address = Input.Address;
-            //    await _userManager.UpdateAsync(user);
-            //}
-
-            //if (Input.City != city)
-            //{
-            //    user.City = Input.City;
-            //    await _userManager.UpdateAsync(user);
-            //}
-
             if (Input.PhoneNumber != phoneNumber)
             {
                 var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);

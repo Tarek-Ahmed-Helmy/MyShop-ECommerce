@@ -43,15 +43,16 @@
 						<label asp-for="Input.ConfirmPassword">Confirm Password</label>
 						<span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
 					</div>
-					
+
 					@if (User.IsInRole(SD.AdminRole))
 					{
 						<input type="radio" value="@SD.AdminRole" name="RadioRole" /> @SD.AdminRole
 						<input type="radio" value="@SD.EditorRole" name="RadioRole" /> @SD.EditorRole
 						<input type="radio" value="@SD.CustomerRole" name="RadioRole" /> @SD.CustomerRole
-						 
+
 						<button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Creat New User</button>
-					} else
+					}
+					else
 					{
 						<button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
 					}
