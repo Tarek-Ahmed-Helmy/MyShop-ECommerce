@@ -8,7 +8,7 @@ public class UnitOfWork : IUnitOfWork
     private readonly ApplicationDbContext _context;
     public ICategoryRepository Category { get; private set; }
     public IProductRepository Product { get; private set; }
-    public IShoppingCartRepository ShoppingCart { get; private set; }
+    public ICartItemRepository CartItem { get; private set; }
     public IOrderRepository Order { get; private set; }
     public IOrderDetailRepository OrderDetail { get; private set; }
     public IApplicationUserRepository ApplicationUser { get; private set; }
@@ -18,7 +18,7 @@ public class UnitOfWork : IUnitOfWork
         _context = context;
         Category = new CategoryRepository(context);
         Product = new ProductRepository(context);
-        ShoppingCart = new ShoppingCartRepository(context);
+        CartItem = new CartItemRepository(context);
         Order = new OrderRepository(context);
         OrderDetail = new OrderDetailRepository(context);
         ApplicationUser = new ApplicationUserRepository(context);

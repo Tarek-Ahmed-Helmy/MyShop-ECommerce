@@ -40,7 +40,6 @@ public class ProductController : Controller
     {
         ProductVM productVM = new ProductVM()
         {
-            Product = new Product(),
             CategoryList = _unitOfWork.Category.GetAll().Select(c => new SelectListItem
             {
                 Text = c.CategoryName,
@@ -68,14 +67,21 @@ public class ProductController : Controller
                     file.CopyTo(fileStream);
                 }
 
-                productVM.Product.ImgPath = @"Images/Products/"+ fileName + extension;
+                productVM.ImgPath = @"Images/Products/"+ fileName + extension;
             }
-            _unitOfWork.Product.Add(productVM.Product);
+            var newProduct = new Product { 
+                ProductName = productVM.ProductName,
+                ProductDescription = productVM.ProductDescription,
+                ImgPath = productVM.ImgPath,
+                Price = productVM.Price,
+                CategoryId = productVM.CategoryId
+            };
+            _unitOfWork.Product.Add(newProduct);
             _unitOfWork.Complete();
             TempData["CreateMsg"] = "Item has created successfully";
             return RedirectToAction(nameof(Index));
         }
-        return View(productVM); //why i use productVM.product here?
+        return View(productVM);
     }
 
     [HttpGet]
@@ -86,9 +92,16 @@ public class ProductController : Controller
             return NotFound();
         }
 
+        Product product = _unitOfWork.Product.GetFirstOrDefault(p => p.Id == id);
+
         ProductVM productVM = new ProductVM()
         {
-            Product = _unitOfWork.Product.GetFirstOrDefault(p => p.Id == id),
+            Id = product.Id,
+            ProductName = product.ProductName,
+            ProductDescription = product.ProductDescription,
+            ImgPath = product.ImgPath,
+            Price = product.Price,
+            CategoryId = product.CategoryId,
             CategoryList = _unitOfWork.Category.GetAll().Select(c => new SelectListItem
             {
                 Text = c.CategoryName,
@@ -111,9 +124,9 @@ public class ProductController : Controller
                 var upload = Path.Combine(rootPath, @"Images/Products");
                 var extension = Path.GetExtension(file.FileName);
 
-                if (productVM.Product.ImgPath != null)
+                if (productVM.ImgPath != null)
                 {
-                    var oldImg = Path.Combine(rootPath, productVM.Product.ImgPath.TrimStart('\\'));
+                    var oldImg = Path.Combine(rootPath, productVM.ImgPath.TrimStart('\\'));
                     if (System.IO.File.Exists(oldImg))
                     {
                         System.IO.File.Delete(oldImg);
@@ -125,9 +138,17 @@ public class ProductController : Controller
                     file.CopyTo(fileStream);
                 }
 
-                productVM.Product.ImgPath = @"Images/Products/" + fileName + extension;
+                productVM.ImgPath = @"Images/Products/" + fileName + extension;
             }
-            _unitOfWork.Product.Update(productVM.Product);
+            var newProduct = new Product
+            {
+                ProductName = productVM.ProductName,
+                ProductDescription = productVM.ProductDescription,
+                ImgPath = productVM.ImgPath,
+                Price = productVM.Price,
+                CategoryId = productVM.CategoryId
+            };
+            _unitOfWork.Product.Update(newProduct);
             _unitOfWork.Complete();
             TempData["UpdateMsg"] = "Item has updated successfully";
             return RedirectToAction(nameof(Index));

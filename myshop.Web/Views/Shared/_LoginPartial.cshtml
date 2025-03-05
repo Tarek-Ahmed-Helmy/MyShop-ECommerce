@@ -1,27 +1,25 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@using myshop.Utilities
 
-@inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManager
+<div class="btn-group">
+	@if (User.Identity.IsAuthenticated)
+	{
+		<button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">My Account</button>
+		<div class="dropdown-menu dropdown-menu-right">
+			<a id="manage" asp-area="Identity" asp-page="/Account/Manage/Index" class="dropdown-item">Edit Profile</a>
+			@if (User.IsInRole(SD.AdminRole))
+			{
+				<a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="dropdown-item">Dashboard</a>
+			}
+			<form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+				<button id="logout" type="submit" class="dropdown-item">Logout</button>
+			</form>
+		</div>
 
-<ul class="navbar-nav">
-@if (SignInManager.IsSignedIn(User))
-{
-    <li class="nav-item">
-        <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
-    </li>
-    <li class="nav-item">
-        <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button id="logout" type="submit" class="nav-link btn btn-link text-dark border-0">Logout</button>
-        </form>
-    </li>
-}
-else
-{
-    <li class="nav-item">
-        <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
-    </li>
-}
-</ul>
+	}
+	else
+	{
+		@* <partial name="_LoginPartial" /> *@
+		<a asp-area="Identity" asp-page="/Account/Login" class="btn btn-sm btn-light mr-3">Sign in</a>
+		<a asp-area="Identity" asp-page="/Account/Register" class="btn btn-sm btn-light mr-3">Sign up</a>
+	}
+</div>
