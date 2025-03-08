@@ -27,39 +27,45 @@ public class CartController : Controller
         var claimsIdentity = (ClaimsIdentity)User.Identity;
         var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
 
+        var cartItems = _unitOfWork.CartItem.GetAll(u => u.ApplicationUserID == claim.Value, includeEntity: "Product");
+
+        var cartItemsVM = cartItems.Select(item => new CartItemVM
+        {
+            Id = item.Id,
+            Quantity = item.Quantity,
+            Price = item.Product.Price,
+            ProductName = item.Product.ProductName,
+            ImgPath = item.Product.ImgPath
+        }).ToList();
+
         ShoppingCartVM = new ShoppingCartVM()
         {
-            CartList = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserID == claim.Value, includeEntity: "Product"),
-            Order = new()
+            CartItems = cartItemsVM,
+            TotalAmount = cartItemsVM.Sum(item => item.Price * item.Quantity)
         };
-
-        foreach (var item in ShoppingCartVM.CartList)
-        {
-            ShoppingCartVM.Order.TotalAmount += (item.Product.Price * item.Quantity);
-        }
         return View(ShoppingCartVM);
     }
 
     public IActionResult Plus(int cartId)
     {
-        var cart = _unitOfWork.ShoppingCart.GetFirstOrDefault(c => c.Id == cartId);
-        _unitOfWork.ShoppingCart.IncreaseCount(cart, 1);
+        var cart = _unitOfWork.CartItem.GetFirstOrDefault(c => c.Id == cartId);
+        _unitOfWork.CartItem.IncreaseCount(cart, 1);
         _unitOfWork.Complete();
         return RedirectToAction(nameof(Index));
     }
 
     public IActionResult Minus(int cartId)
     {
-        var cart = _unitOfWork.ShoppingCart.GetFirstOrDefault(c => c.Id == cartId);
+        var cart = _unitOfWork.CartItem.GetFirstOrDefault(c => c.Id == cartId);
         if (cart.Quantity == 1)
         {
-            _unitOfWork.ShoppingCart.Remove(cart);
-            var count = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserID == cart.ApplicationUserID).ToList().Count - 1;
+            _unitOfWork.CartItem.Remove(cart);
+            var count = _unitOfWork.CartItem.GetAll(u => u.ApplicationUserID == cart.ApplicationUserID).ToList().Count - 1;
             HttpContext.Session.SetInt32(SD.SessionKey, count);
         }
         else
         {
-            _unitOfWork.ShoppingCart.DecreaseCount(cart, 1);
+            _unitOfWork.CartItem.DecreaseCount(cart, 1);
         }
         _unitOfWork.Complete();
         return RedirectToAction(nameof(Index));
@@ -67,68 +73,75 @@ public class CartController : Controller
 
     public IActionResult Remove(int cartId)
     {
-        var cart = _unitOfWork.ShoppingCart.GetFirstOrDefault(c => c.Id == cartId);
-        _unitOfWork.ShoppingCart.Remove(cart);
+        var cart = _unitOfWork.CartItem.GetFirstOrDefault(c => c.Id == cartId);
+        _unitOfWork.CartItem.Remove(cart);
         _unitOfWork.Complete();
-        var count = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserID == cart.ApplicationUserID).ToList().Count;
+        var count = _unitOfWork.CartItem.GetAll(u => u.ApplicationUserID == cart.ApplicationUserID).ToList().Count;
         HttpContext.Session.SetInt32(SD.SessionKey, count);
         return RedirectToAction(nameof(Index));
     }
 
     [HttpGet]
-    public IActionResult Summary()
+    public IActionResult Checkout()
     {
         var claimsIdentity = (ClaimsIdentity)User.Identity;
         var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
 
+        var cartItems = _unitOfWork.CartItem.GetAll(u => u.ApplicationUserID == claim.Value, includeEntity: "Product");
+
+        var cartItemsVM = cartItems.Select(item => new CartItemVM
+        {
+            Id = item.Id,
+            Quantity = item.Quantity,
+            Price = item.Product.Price,
+            ProductName = item.Product.ProductName,
+            ImgPath = item.Product.ImgPath
+        }).ToList();
+
         ShoppingCartVM = new ShoppingCartVM()
         {
-            CartList = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserID == claim.Value, includeEntity: "Product"),
-            Order = new ()
+            CartItems = cartItemsVM,
+            TotalAmount = cartItemsVM.Sum(item => item.Price * item.Quantity)
         };
 
-        ShoppingCartVM.Order.ApplicationUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == claim.Value);
-        ShoppingCartVM.Order.FullName = ShoppingCartVM.Order.ApplicationUser.FullName;
-        ShoppingCartVM.Order.PhoneNumber = ShoppingCartVM.Order.ApplicationUser.PhoneNumber;
-        ShoppingCartVM.Order.Address = ShoppingCartVM.Order.ApplicationUser.Address;
-        ShoppingCartVM.Order.City = ShoppingCartVM.Order.ApplicationUser.City;
+        var AppUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == claim.Value);
+        ShoppingCartVM.FullName = AppUser.FullName;
+        ShoppingCartVM.PhoneNumber = AppUser.PhoneNumber;
+        ShoppingCartVM.Address = AppUser.Address;
+        ShoppingCartVM.City = AppUser.City;
+        ShoppingCartVM.Email = AppUser.Email;
 
-        foreach (var item in ShoppingCartVM.CartList)
-        {
-            ShoppingCartVM.Order.TotalAmount += (item.Product.Price * item.Quantity);
-        }
         return View(ShoppingCartVM);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [ActionName("Summary")]
-    public IActionResult PostSummary(ShoppingCartVM shoppingCartVM)
+    public IActionResult Checkout(Order order)
     {
         var claimsIdentity = (ClaimsIdentity)User.Identity;
         var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
 
-        shoppingCartVM.CartList = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserID == claim.Value, includeEntity: "Product");
+        var cartList = _unitOfWork.CartItem.GetAll(u => u.ApplicationUserID == claim.Value, includeEntity: "Product");
 
-        shoppingCartVM.Order.OrderStatus = SD.Pending;
-        shoppingCartVM.Order.OrderDate = DateTime.Now;
-        shoppingCartVM.Order.PaymentStatus = SD.Pending;
-        shoppingCartVM.Order.ApplicationUserId = claim.Value;
+        order.OrderStatus = SD.Pending;
+        order.OrderDate = DateTime.Now;
+        order.PaymentStatus = SD.Pending;
+        order.ApplicationUserId = claim.Value;
 
-        foreach (var item in shoppingCartVM.CartList)
+        foreach (var item in cartList)
         {
-            shoppingCartVM.Order.TotalAmount += (item.Product.Price * item.Quantity);
+            order.TotalAmount += (item.Product.Price * item.Quantity);
         }
 
-        _unitOfWork.Order.Add(shoppingCartVM.Order);
+        _unitOfWork.Order.Add(order);
         _unitOfWork.Complete();
 
-        foreach (var item in shoppingCartVM.CartList)
+        foreach (var item in cartList)
         {
             OrderDetail orderDetail = new OrderDetail()
             {
                 ProductId = item.ProductId,
-                OrderId = shoppingCartVM.Order.Id,
+                OrderId = order.Id,
                 Price = item.Product.Price,
                 Quantity = item.Quantity
             };
@@ -136,17 +149,17 @@ public class CartController : Controller
             _unitOfWork.Complete();
         }
         // payment process
-        var domain = "https://localhost:7167/";
+        var domain = "https://localhost:5289/";
         var options = new SessionCreateOptions
         {
             LineItems = new List<SessionLineItemOptions>(),
                 
             Mode = "payment",
-            SuccessUrl = domain + $"Customer/Cart/OrderConfirmation/{shoppingCartVM.Order.Id}",
+            SuccessUrl = domain + $"Customer/Cart/OrderConfirmation/{order.Id}",
             CancelUrl = domain + "Customer/Cart/Index",
         };
 
-        foreach (var item in shoppingCartVM.CartList)
+        foreach (var item in cartList)
         {
             var sessionLineItem = new SessionLineItemOptions
             {
@@ -167,7 +180,7 @@ public class CartController : Controller
         var service = new SessionService();
         Session session = service.Create(options);
 
-        shoppingCartVM.Order.SessionId = session.Id;
+        order.SessionId = session.Id;
         _unitOfWork.Complete();
 
         Response.Headers.Add("Location", session.Url);
@@ -186,9 +199,9 @@ public class CartController : Controller
             _unitOfWork.Complete();
         }
 
-        List<ShoppingCart> cartList = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserID == order.ApplicationUserId).ToList();
+        List<CartItem> cartList = _unitOfWork.CartItem.GetAll(u => u.ApplicationUserID == order.ApplicationUserId).ToList();
         HttpContext.Session.Clear();
-        _unitOfWork.ShoppingCart.RemoveRange(cartList);
+        _unitOfWork.CartItem.RemoveRange(cartList);
         _unitOfWork.Complete();
 
         return View(id);

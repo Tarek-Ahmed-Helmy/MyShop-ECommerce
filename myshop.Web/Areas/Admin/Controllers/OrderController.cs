@@ -35,31 +35,48 @@ public class OrderController : Controller
 
     public IActionResult Details(int? id)
     {
+        var order = _unitOfWork.Order.GetFirstOrDefault(o => o.Id == id, includeEntity: "ApplicationUser");
+        var orderDetails = _unitOfWork.OrderDetail.GetAll(od => od.OrderId == id, includeEntity: "Product");
         OrderVM orderVM = new OrderVM()
         {
-            Order = _unitOfWork.Order.GetFirstOrDefault(o => o.Id == id, includeEntity: "ApplicationUser"),
-            OrderDetails = _unitOfWork.OrderDetail.GetAll(od => od.OrderId == id, includeEntity: "Product")
+            Id = order.Id,
+            FullName = order.ApplicationUser.FullName,
+            Address = order.ApplicationUser.Address,
+            City = order.ApplicationUser.City,
+            PhoneNumber = order.ApplicationUser.PhoneNumber,
+            Email = order.ApplicationUser.Email,
+            TrackingNumber = order.TrackingNumber,
+            Carrier = order.Carrier,
+            OrderDate = order.OrderDate,
+            ShippingDate = order.ShippingDate,
+            SessionId = order.SessionId,
+            PaymentIntentId = order.PaymentIntentId,
+            PaymentDate = order.PaymentDate,
+            PaymentStatus = order.PaymentStatus,
+            OrderStatus = order.OrderStatus,
+            TotalAmount = order.TotalAmount,
+            OrderDetails = orderDetails
         };
         return View(orderVM);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult UpdateOrderDetails() 
+    public IActionResult UpdateOrderDetails()
     {
-        var order = _unitOfWork.Order.GetFirstOrDefault(o => o.Id == OrderVM.Order.Id);
-        order.FullName = OrderVM.Order.FullName;
-        order.Address = OrderVM.Order.Address;
-        order.City = OrderVM.Order.City;
-        order.PhoneNumber = OrderVM.Order.PhoneNumber;
-        
-        if(OrderVM.Order.Carrier != null)
+        var order = _unitOfWork.Order.GetFirstOrDefault(o => o.Id == OrderVM.Id, includeEntity: "ApplicationUser");
+        order.ApplicationUser.FullName = OrderVM.FullName;
+        order.ApplicationUser.Address = OrderVM.Address;
+        order.ApplicationUser.City = OrderVM.City;
+        order.ApplicationUser.PhoneNumber = OrderVM.PhoneNumber;
+
+        if (OrderVM.Carrier != null)
         {
-            order.Carrier = OrderVM.Order.Carrier;
+            order.Carrier = OrderVM.Carrier;
         }
-        if (OrderVM.Order.TrackingNumber != null)
+        if (OrderVM.TrackingNumber != null)
         {
-            order.TrackingNumber = OrderVM.Order.TrackingNumber;
+            order.TrackingNumber = OrderVM.TrackingNumber;
         }
         _unitOfWork.Order.Update(order);
         _unitOfWork.Complete();
@@ -69,22 +86,22 @@ public class OrderController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult StartProccess() 
+    public IActionResult StartProccess()
     {
-        _unitOfWork.Order.UpdateOrderStatus(OrderVM.Order.Id, SD.processing, null);
+        _unitOfWork.Order.UpdateOrderStatus(OrderVM.Id, SD.processing, null);
         _unitOfWork.Complete();
 
         TempData["UpdateMsg"] = "Order status has updated successfully";
-        return RedirectToAction("Details", "Order", new { id = OrderVM.Order.Id });
+        return RedirectToAction("Details", "Order", new { id = OrderVM.Id });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult StartShip()
     {
-        var order = _unitOfWork.Order.GetFirstOrDefault(o => o.Id == OrderVM.Order.Id);
-        order.TrackingNumber = OrderVM.Order.TrackingNumber;
-        order.Carrier = OrderVM.Order.Carrier;
+        var order = _unitOfWork.Order.GetFirstOrDefault(o => o.Id == OrderVM.Id);
+        order.TrackingNumber = OrderVM.TrackingNumber;
+        order.Carrier = OrderVM.Carrier;
         order.OrderStatus = SD.Shipped;
         order.ShippingDate = DateTime.Now;
 
@@ -92,15 +109,15 @@ public class OrderController : Controller
         _unitOfWork.Complete();
 
         TempData["UpdateMsg"] = "Order has shipped successfully";
-        return RedirectToAction("Details", "Order", new { id = OrderVM.Order.Id });
+        return RedirectToAction("Details", "Order", new { id = OrderVM.Id });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult CancelOrder()
     {
-        var order = _unitOfWork.Order.GetFirstOrDefault(o => o.Id == OrderVM.Order.Id);
-        if(order.PaymentStatus == SD.Approved)
+        var order = _unitOfWork.Order.GetFirstOrDefault(o => o.Id == OrderVM.Id);
+        if (order.PaymentStatus == SD.Approved)
         {
             var option = new RefundCreateOptions
             {
@@ -120,6 +137,6 @@ public class OrderController : Controller
         _unitOfWork.Complete();
 
         TempData["UpdateMsg"] = "Order has canceld successfully";
-        return RedirectToAction("Details", new { id = OrderVM.Order.Id });
+        return RedirectToAction("Details", new { id = OrderVM.Id });
     }
 }

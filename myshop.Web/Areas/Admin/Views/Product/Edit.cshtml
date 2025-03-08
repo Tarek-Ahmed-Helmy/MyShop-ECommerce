@@ -9,31 +9,31 @@
 <div class="row">
 	<div class="col-md-4">
 		<form asp-action="Edit" method="post" enctype="multipart/form-data">
-			<input type="hidden" asp-for="Product.Id" />
-			<input type="hidden" asp-for="Product.ImgPath" />
+			<input type="hidden" asp-for="Id" />
+			<input type="hidden" asp-for="ImgPath" />
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 			<div class="form-group">
-				<label asp-for="Product.ProductName" class="control-label"></label>
-				<input asp-for="Product.ProductName" class="form-control" />
-				<span asp-validation-for="Product.ProductName" class="text-danger"></span>
+				<label asp-for="ProductName" class="control-label"></label>
+				<input asp-for="ProductName" class="form-control" />
+				<span asp-validation-for="ProductName" class="text-danger"></span>
 			</div>
 			<div class="form-group">
-				<label asp-for="Product.ProductDescription" class="control-label"></label>
-				<textarea id="mytextarea" asp-for="Product.ProductDescription" class="form-control"></textarea>
-				<span asp-validation-for="Product.ProductDescription" class="text-danger"></span>
+				<label asp-for="ProductDescription" class="control-label"></label>
+				<textarea id="mytextarea" asp-for="ProductDescription" class="form-control"></textarea>
+				<span asp-validation-for="ProductDescription" class="text-danger"></span>
 			</div>
 			<div class="form-group">
-				<label asp-for="Product.Price" class="control-label"></label>
-				<input asp-for="Product.Price" class="form-control" />
-				<span asp-validation-for="Product.Price" class="text-danger"></span>
+				<label asp-for="Price" class="control-label"></label>
+				<input asp-for="Price" class="form-control" />
+				<span asp-validation-for="Price" class="text-danger"></span>
 			</div>
 			<div class="form-group">
-				<label asp-for="Product.ImgPath" class="control-label"></label>
+				<label asp-for="ImgPath" class="control-label"></label>
 				<input type="file" name="file" id="imgFile" class="form-control" onchange="showImage(event);" />
 			</div>
 			<div class="form-group">
-				<label asp-for="Product.CategoryId" class="control-label"></label>
-				<select asp-for="Product.CategoryId" asp-items="Model.CategoryList" class="form-control">
+				<label asp-for="CategoryId" class="control-label"></label>
+				<select asp-for="CategoryId" asp-items="Model.CategoryList" class="form-control">
 					<option disabled selected>-- Select Category --</option>
 				</select>
 			</div>
@@ -45,7 +45,7 @@
 	</div>
 	<div class="col-md-4">
 		<div class="container">
-			<img id="ImagePreview" src="~/@Model.Product.ImgPath" width="300" height="300" />
+			<img id="ImagePreview" src="~/@Model.ImgPath" width="300" height="300" />
 		</div>
 	</div>
 </div>

@@ -1,47 +1,42 @@
 ﻿@model IEnumerable<Product>
-@using X.PagedList.Mvc.Core;
-@using X.PagedList;
-@* @using X.PagedList.Web.Common; *@
 
-<section class="py-5">
-	<div class="container px-4 px-lg-5 mt-5">
-		<div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-			@foreach (var item in Model)
-			{
-				<div class="col mb-5">
-					<div class="card h-100">
-						<!-- Product image-->
-						<a asp-action="Details" asp-route-productId="@item.Id"><img class="card-img-top" src="~/@item.ImgPath" alt="..." width="450" height="300" /></a>
-						<!-- Product details-->
-						<div class="card-body p-4">
-							<div class="text-center">
-								<!-- Product name-->
-								<h5 class="fw-bolder">@item.ProductName</h5>
-								<!-- Product price-->
-								$@item.Price
-							</div>
+@{
+	
+}
+
+<div class="container-fluid pt-5 pb-3">
+	<h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">Featured Products</span></h2>
+	<div class="row px-xl-5">
+		@foreach (var item in Model)
+		{
+			<div class="col-lg-3 col-md-4 col-sm-6 pb-1">
+				<div class="product-item bg-light mb-4">
+					<div class="product-img position-relative overflow-hidden">
+						<img class="img-fluid w-100" src="~/@item.ImgPath" alt="..." />
+						<div class="product-action">
+							<a asp-action="Details" asp-route-productId="@item.Id" class="btn btn-outline-dark btn-square">
+								<i class="fa fa-search"></i>
+							</a>
 						</div>
-						<!-- Product actions-->
-						<div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-							<div class="text-center">
-								<a asp-action="Details" asp-route-productId="@item.Id" class="btn btn-outline-dark mt-auto">View Details</a>
-							</div>
+					</div>
+					<div class="text-center py-4">
+						<a class="text-decoration-none" asp-action="Details" asp-route-productId="@item.Id">
+							<p class="text-truncate" style="color:black">@item.ProductName</p>
+						</a>
+						<div class="d-flex align-items-center justify-content-center mt-2">
+							<h5>$@item.Price</h5>
+						</div>
+						<div class="d-flex align-items-center justify-content-center mb-1">
+							<small class="fa fa-star text-primary mr-1"></small>
+							<small class="fa fa-star text-primary mr-1"></small>
+							<small class="fa fa-star text-primary mr-1"></small>
+							<small class="fa fa-star text-primary mr-1"></small>
+							<small class="fa fa-star text-primary mr-1"></small>
+							<small>(99)</small>
 						</div>
 					</div>
 				</div>
-			}
-		</div>
-		<div class="container px-4 px-lg-5 mt-5">
-			<div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-				@Html.PagedListPager(
-									(IPagedList)Model,
-									page => Url.Action("Index", new { page = page }),
-									new PagedListRenderOptions
-				{
-					LiElementClasses = new string[] { "page-item" },
-					PageClasses = new string[] { "page-link" }
-				})
 			</div>
-		</div>
+		}
 	</div>
-</section>
+</div>

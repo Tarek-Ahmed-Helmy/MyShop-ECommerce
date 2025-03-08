@@ -1,101 +1,89 @@
 ﻿@model ShoppingCartVM
 
 
-<form method="post">
-	<br />
-	<div class="container">
-		<div class="card">
-			<div class="card-header bg-dark text-light ml-0">
-				<div class="row">
-					<div class="col-6  pt-2">
-						<i class="fas fa-shopping-cart"></i> &nbsp;
-						Shopping Cart
-					</div>
-					<div class="col-6 text-end">
-						<a asp-area="Customer" asp-controller="Home" asp-action="Index" class="btn btn-outline-light btn-sm">Continue Shopping</a>
-					</div>
-				</div>
-			</div>
-
-			<div class="card-body">
-				@if (Model.CartList.Count() < 1)
-				{
-					<h4>There is no Items in Your Cart</h4>
-				}
-				else
-				{
-					@foreach (var item in Model.CartList)
+<div class="container-fluid">
+	<div class="row px-xl-5">
+		<div class="col-lg-8 table-responsive mb-5">
+			<table class="table table-light table-borderless table-hover text-center mb-0">
+				<thead class="thead-dark">
+					<tr>
+						<th></th>
+						<th>Products</th>
+						<th>Price</th>
+						<th>Quantity</th>
+						<th>Total</th>
+						<th>Remove</th>
+					</tr>
+				</thead>
+				<tbody class="align-middle">
+					@if (Model.CartItems.Count() < 1)
 					{
-						<div class="row">
-							<div class="d-none d-lg-block col-lg-1 text-center py-2">
-								<img src="~/@item.Product.ImgPath" class="rounded" width="100%" />
-							</div>
-							<div class="col-12 col-lg-6 pt-md-3">
-								<h5><strong>@item.Product.ProductName</strong></h5>
-								<p><small>@Html.Raw(item.Product.ProductDescription)</small></p>
-							</div>
-							<div class="col-12  col-lg-5 text-center row">
-								<div class="col-4 text-md-right pt-4">
-									<h6>
-										<strong>
-											@item.Product.Price.ToString("c")
-											<span class="text-muted">&nbsp;x&nbsp;</span>@item.Quantity
-										</strong>
-									</h6>
-								</div>
-								<div class="col-6 col-sm-4 col-lg-6 pt-2">
-									<div class="w-75 btn-group" role="group">
-										<a asp-action="plus" asp-route-cartId="@item.Id" class="btn btn-dark">
-											<i class="bi bi-plus-square"></i>
-										</a> &nbsp;
-										<a asp-action="minus" asp-route-cartId="@item.Id" class="btn btn-dark">
-											<i class="bi bi-dash-square"></i>
-										</a>
-									</div>
-
-								</div>
-								<div class="col-2 col-sm-4 col-lg-2 text-right pt-2">
-									<a asp-action="remove" asp-route-cartId="@item.Id" class="btn btn-danger">
-										<i class="bi bi-trash-fill"></i>
-									</a>
-								</div>
-							</div>
-						</div>
-						<hr />
+						<tr>
+							<td colspan="6">
+								<h5>There is no Items in Your Cart</h5>
+							</td>
+						</tr>
 					}
-					<div class="row">
-						<div class="col-12 col-md-6 offset-md-6 col-lg-4 offset-lg-8 pr-4">
-							<ul class="list-group">
-								<li class="list-group-item d-flex justify-content-between bg-light">
-									<span class="text-dark"> Total (USD)</span>
-									<strong class="text-dark">@Model.Order.TotalAmount.ToString("c")</strong>
-								</li>
-							</ul>
-						</div>
-					</div>
-				}
-
-
-			</div>
-			@if (Model.CartList.Count() != 0)
-			{
-				<div class="card-footer">
-
-					<div class="card-footer row">
-
-						<div class="col-sm-12 col-lg-4 col-md-6 offset-lg-8 offset-md-6 ">
-							<a asp-action="Summary" class="btn btn-primary form-control">Summary</a>
-						</div>
-
-					</div>
-
-				</div>
-			}
+					else
+					{
+						foreach (var item in Model.CartItems)
+						{
+							<tr>
+								<td class="align-middle"><img src="~/@item.ImgPath" class="rounded" width="50px" /></td>
+								<td>@item.ProductName</td>
+								<td class="align-middle">@item.Price.ToString("c")</td>
+								<td class="align-middle">
+									<div class="input-group quantity mx-auto" style="width: 100px;">
+										<div class="input-group-btn">
+											<a class="btn btn-sm btn-primary btn-minus" asp-action="minus" asp-route-cartId="@item.Id">
+												<i class="fa fa-minus"></i>
+											</a>
+										</div>
+										<input type="text" class="form-control form-control-sm bg-secondary border-0 text-center" value="@item.Quantity">
+										<div class="input-group-btn">
+											<a class="btn btn-sm btn-primary btn-plus" asp-action="plus" asp-route-cartId="@item.Id">
+												<i class="fa fa-plus"></i>
+											</a>
+										</div>
+									</div>
+								</td>
+								<td class="align-middle">$@(item.Quantity * item.Price)</td>
+								<td class="align-middle">
+									<a asp-action="remove" asp-route-cartId="@item.Id" class="btn btn-sm btn-danger">
+										<i class="fa fa-times"></i>
+									</a>
+								</td>
+							</tr>
+						}
+					}
+				</tbody>
+			</table>
 		</div>
+		@if (Model.CartItems.Count() != 0)
+		{
+			<div class="col-lg-4">
+				<h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Cart Summary</span></h5>
+				<div class="bg-light p-30 mb-5">
+					@* <div class="border-bottom pb-2">
+						<div class="d-flex justify-content-between mb-3">
+							<h6>Subtotal</h6>
+							<h6>@Model.Order.TotalAmount.ToString("c")</h6>
+						</div>
+						<div class="d-flex justify-content-between">
+							<h6 class="font-weight-medium">Shipping</h6>
+							<h6 class="font-weight-medium">$10</h6>
+						</div>
+					</div> *@
+					<div class="pt-2">
+						<div class="d-flex justify-content-between mt-2">
+							<h5>Total</h5>
+							<h5>@Model.TotalAmount.ToString("c")</h5>
+						</div>
+						<a asp-action="Checkout" class="btn btn-block btn-primary font-weight-bold my-3 py-3">Proceed To Checkout</a>
+					</div>
+				</div>
+			</div>
+		}
 	</div>
-	<br />
-</form>
-
-
-
-
+</div>
+<!-- Cart End -->

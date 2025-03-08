@@ -16,10 +16,21 @@ namespace myshop.Web.Areas.Customer.Controllers
         {
             _unitOfWork = unitOfWork;
         }
-        public IActionResult Index(int? page)
-        { 
+
+        // add another logic here for the rest of the home page
+        public IActionResult Index()
+        {
+            //categories
+
+
+            var products = _unitOfWork.Product.GetAll();
+            return View(products);
+        }
+
+        public IActionResult ShopIndex(int? page)
+        {
             var PageNumber = page ?? 1;
-            var PageSize = 8;
+            var PageSize = 9;
 
             var products = _unitOfWork.Product.GetAll().ToPagedList(PageNumber, PageSize);
             return View(products);
@@ -27,44 +38,49 @@ namespace myshop.Web.Areas.Customer.Controllers
 
         public IActionResult Details(int productId)
         {
-            ShoppingCart shoppingCart = new ShoppingCart()
+            CartItem cartItem = new CartItem()
             {
                 ProductId = productId,
                 Product = _unitOfWork.Product.GetFirstOrDefault(p => p.Id == productId, includeEntity: "Category"),
                 Quantity = 1
             };
-            return View(shoppingCart);
+            return View(cartItem);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public IActionResult Details(ShoppingCart shoppingCart)
+        public IActionResult Details(CartItem cartItemFromReq)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-            shoppingCart.ApplicationUserID = claim.Value;
+            cartItemFromReq.ApplicationUserID = claim.Value;
 
-            ShoppingCart userCartObj = _unitOfWork.ShoppingCart.GetFirstOrDefault(
-                u => u.ApplicationUserID == claim.Value && u.ProductId == shoppingCart.ProductId
+            CartItem userCartItem = _unitOfWork.CartItem.GetFirstOrDefault(
+                u => u.ApplicationUserID == claim.Value && u.ProductId == cartItemFromReq.ProductId
                 );
 
-            if (userCartObj == null)
+            if (userCartItem == null)
             {
-                _unitOfWork.ShoppingCart.Add(shoppingCart);
+                _unitOfWork.CartItem.Add(cartItemFromReq);
                 _unitOfWork.Complete();
                 HttpContext.Session.SetInt32(
                     SD.SessionKey,
-                    _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserID == shoppingCart.ApplicationUserID).ToList().Count
+                    _unitOfWork.CartItem.GetAll(u => u.ApplicationUserID == cartItemFromReq.ApplicationUserID).ToList().Count
                     );
             }
             else
             {
-                _unitOfWork.ShoppingCart.IncreaseCount(userCartObj, shoppingCart.Quantity);
+                _unitOfWork.CartItem.IncreaseCount(userCartItem, cartItemFromReq.Quantity);
                 _unitOfWork.Complete();
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(ShopIndex));
+        }
+
+        public IActionResult Contact()
+        {
+            return View();
         }
     }
 }
